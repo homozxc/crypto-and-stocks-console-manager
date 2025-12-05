@@ -43,5 +43,17 @@ def get_real_price(ticker:str):
     except:
         return None
 
+def load_portfolio(filename:str):
+    '''
+    Получает название файла json, загружает файл. Если возникает ошибка при загрузке,
+    то создает портфолио по умолчанию.
 
+    :param str filename: название файла json, который загружается
+    :return: Загруженный файл json
+    '''
+    try:
+        with open(filename, 'r') as f:
+            return json.load(f)
+    except:
+        return {"cash": 0.0, "positions": {}, "history": []}
 
