@@ -67,3 +67,17 @@ def save_portfolio(data, filename="portfolio.json"):
     '''
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
+
+def update_cash(data, amount):
+    '''
+    Получает на вход словарь, хранящий в себе информацию о портфолио,
+    и сумму, которую нужно добавить или вычесть из счета.
+    Прибавляет к элементу с ключом cash число amount.
+
+    :param dict data:
+    :param int or float amount:
+    :return: Словарь с обновленным количеством денег на счете
+    '''
+    data["cash"] += amount
+    log_action(data, f"Cash update: {amount}")
+    return data
