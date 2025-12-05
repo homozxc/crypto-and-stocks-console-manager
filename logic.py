@@ -1,7 +1,7 @@
-<<<<<<< HEAD
 import json
 import datetime
 import yfinance
+import matplotlib.pyplot as plt
 
 WATCHLIST = {
     "BTC-USD": "Bitcoin",
@@ -170,10 +170,6 @@ def sell_asset(data, ticker, qty):
     log_action(data, f"Sold {qty} {ticker} @ {price:.2f}")
     print(f"Successfully sold {qty} {ticker} at ${price:.2f}")
     return True
-=======
-import datetime as dt
-import yfinance as yf
-import matplotlib.pyplot as plt
 
 
 def export_history_data(data):
@@ -185,9 +181,9 @@ def export_history_data(data):
 
 def get_chart(ticker, days):
     print("loading chart...")
-    end_date = dt.datetime.now()
-    start_date = end_date - dt.timedelta(days=days)
-    df = yf.download(
+    end_date = datetime.datetime.now()
+    start_date = end_date - datetime.timedelta(days=days)
+    df = yfinance.download(
         tickers=ticker,
         start=start_date,
         end=end_date,
@@ -224,7 +220,7 @@ def get_chart(ticker, days):
 
 def log_action(data, message):
     data["history"].append({
-        "date": str(dt.datetime.now()),
+        "date": str(datetime.datetime.now()),
         "action": message,
         "cash_snapshot": data["cash"]
     })
@@ -266,4 +262,3 @@ def get_current_stats(data):
         "total_value": data["cash"] + current_asset_value,
         "total_pnl": current_asset_value - total_cost_basis
     }
->>>>>>> c44641e15bd202d0528bb25a4fc5b00d982ae888
