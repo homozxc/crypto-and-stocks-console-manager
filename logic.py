@@ -47,4 +47,10 @@ def get_chart(ticker, days):
 
     plt.show()
 
-get_chart("AAPL", 15)
+def log_action(data, message):
+    data["history"].append({
+        "date": str(dt.datetime.now()),
+        "action": message,
+        "cash_snapshot": data["cash"]
+    })
+
