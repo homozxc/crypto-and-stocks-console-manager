@@ -81,3 +81,53 @@ def update_cash(data, amount):
     data["cash"] += amount
     log_action(data, f"Cash update: {amount}")
     return data
+
+def buy_asset(data, ticker, qty):
+    '''
+    Принимает словарь data, содержащий всю информацию о портфеле,
+    название тикера ticker из словаря WATCHLIST, количество акций qty,
+    которое нужно приобрести.
+
+    Если тикер есть в словаре WATCHLIST,
+    то обращается к функции get_real_price и получает
+     цену тикера. Если на счете достаточно денег, то обновляет
+     в словаре data элемент с ключом 'positions' и возвращает True.
+
+     Если тикера нет в списке разрешенных, не удалось получить цену тикера или
+     на счете недостаточно денег, то выводит соответствующее сообщение и возвращает False.
+
+    :param dict data:
+    :param str ticker:
+    :param int or float qty:
+    :return: True
+    '''
+    if ticker not in WATCHLIST:
+        print(f"Error: {ticker} is not in watchlist.")
+        return False
+
+    price = get_real_price(ticker)
+    if price is None:
+        print("Could not fetch price. Transaction aborted.")
+        return False
+
+    cost = qty * price
+    if cost > data["cash"]:
+        print(f"Error: Insufficient funds. Cost: ${cost:.2f}, Cash: ${data['cash']:.2f}")
+        return False
+
+    data["cash"] -= cost
+
+    if ticker in data["positions"]:
+        old_qty = data["positions"][ticker]["qty"]
+        old_avg = data["positions"][ticker]["avg_price"]
+        new_qty = old_qty + qty
+        new_avg = ((old_qty * old_avg) + cost) / new_qty
+
+        data["positions"][ticker]["qty"] = new_qty
+        data["positions"][ticker]["avg_price"] = new_avg
+    else:
+        data["positions"][ticker] = {"qty": qty, "avg_price": price}
+
+    log_action(data, f"Bought {qty} {ticker} @ {price:.2f}")
+    print(f"Successfully bought {qty} {ticker} at ${price:.2f}")
+    return True
