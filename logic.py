@@ -131,3 +131,41 @@ def buy_asset(data, ticker, qty):
     log_action(data, f"Bought {qty} {ticker} @ {price:.2f}")
     print(f"Successfully bought {qty} {ticker} at ${price:.2f}")
     return True
+
+def sell_asset(data, ticker, qty):
+    '''
+    Принимает на вход словарь data, содержащий всю информацию о портфеле,
+    название тикера ticker из словаря WATCHLIST, количество акций qty,
+    которое нужно продать.
+
+    Обращается к функции get_real_price и получает актуальную цену тикера.
+    В словаре data обновляет элементы с ключами 'cash' и 'positions' (количество денег на счете
+    и позиции в портфеле) и возвращает True.
+
+    Если тикера нет в списке имеющихся в портфеле, количество для продажи больше, чем количество
+    имеющихся, или не удалось получить цену тикера, то выводит соответствующее сообщение и возвращает False.
+
+    :param data:
+    :param ticker:
+    :param qty:
+    :return: True or False
+    '''
+    if ticker not in data["positions"] or data["positions"][ticker]["qty"] < qty:
+        print("Error: Not enough position to sell.")
+        return False
+
+    price = get_real_price(ticker)
+    if price is None:
+        print("Could not fetch price. Transaction aborted.")
+        return False
+
+    revenue = qty * price
+    data["cash"] += revenue
+    data["positions"][ticker]["qty"] -= qty
+
+    if data["positions"][ticker]["qty"] <= 0:
+        del data["positions"][ticker]
+
+    log_action(data, f"Sold {qty} {ticker} @ {price:.2f}")
+    print(f"Successfully sold {qty} {ticker} at ${price:.2f}")
+    return True
