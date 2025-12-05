@@ -57,3 +57,13 @@ def load_portfolio(filename:str):
     except:
         return {"cash": 0.0, "positions": {}, "history": []}
 
+def save_portfolio(data, filename="portfolio.json"):
+    '''
+    Сохраняет словарь data, который содержит информацию о портфеле, в формате json
+
+    :param dict data:
+    :param str filename:
+    :return:
+    '''
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
