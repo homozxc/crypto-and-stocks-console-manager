@@ -37,7 +37,7 @@ def get_real_price(ticker:str):
     90000.00001
     """
 
-    print(f'Fetching the price of {ticker}...')
+    print(f'Узнаем цену {ticker}...')
     try:
         data = yfinance.Ticker(ticker).history(period='1d')
         return data['Close'].iloc[-1] if not data.empty else None
@@ -80,7 +80,7 @@ def update_cash(data, amount):
     :return: Словарь с обновленным количеством денег на счете
     """
     data["cash"] += amount
-    log_action(data, f"Cash update: {amount}")
+    log_action(data, f"Обновление денег на счете: {amount}")
     return data
 
 def buy_asset(data, ticker, qty):
@@ -103,17 +103,17 @@ def buy_asset(data, ticker, qty):
     :return: True
     """
     if ticker not in WATCHLIST:
-        print(f"Error: {ticker} is not in watchlist.")
+        print(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
         return False
 
     price = get_real_price(ticker)
     if price is None:
-        print("Could not fetch price. Transaction aborted.")
+        print("Не можем найти цену. Транзакция отклонена")
         return False
 
     cost = qty * price
     if cost > data["cash"]:
-        print(f"Error: Insufficient funds. Cost: ${cost:.2f}, Cash: ${data['cash']:.2f}")
+        print(f"Ошибка: Не хватает средств. Стоимость: ${cost:.2f}, Деньги на счету: ${data['cash']:.2f}")
         return False
 
     data["cash"] -= cost
@@ -129,8 +129,8 @@ def buy_asset(data, ticker, qty):
     else:
         data["positions"][ticker] = {"qty": qty, "avg_price": price}
 
-    log_action(data, f"Bought {qty} {ticker} @ {price:.2f}")
-    print(f"Successfully bought {qty} {ticker} at ${price:.2f}")
+    log_action(data, f"Купили {qty} {ticker} @ {price:.2f}")
+    print(f"Успешно купили {qty} {ticker} по цене ${price:.2f}")
     return True
 
 def sell_asset(data, ticker, qty):
@@ -152,12 +152,12 @@ def sell_asset(data, ticker, qty):
     :return: True or False
     """
     if ticker not in data["positions"] or data["positions"][ticker]["qty"] < qty:
-        print("Error: Not enough position to sell.")
+        print("Ошибка: Нет такого кол-ва, чтобы продать.")
         return False
 
     price = get_real_price(ticker)
     if price is None:
-        print("Could not fetch price. Transaction aborted.")
+        print("Не можем найти цену. Транзакция не прошла")
         return False
 
     revenue = qty * price
@@ -167,8 +167,8 @@ def sell_asset(data, ticker, qty):
     if data["positions"][ticker]["qty"] <= 0:
         del data["positions"][ticker]
 
-    log_action(data, f"Sold {qty} {ticker} @ {price:.2f}")
-    print(f"Successfully sold {qty} {ticker} at ${price:.2f}")
+    log_action(data, f"Продано {qty} {ticker} @ {price:.2f}")
+    print(f"Успешно продано {qty} {ticker} at ${price:.2f}")
     return True
 
 
