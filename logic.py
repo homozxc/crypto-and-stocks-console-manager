@@ -17,7 +17,7 @@ WATCHLIST = {
 }
 
 def get_real_price(ticker:str):
-    '''
+    """
     Принимает на вход строку с названием тикера из словаря WATCHLIST5.
 
     Используя библиотеку yfinance, получает цену закрытия тикера за
@@ -35,7 +35,7 @@ def get_real_price(ticker:str):
     >>> 'BTC-USD'
     >>> get_real_price('BTC-USD')
     90000.00001
-    '''
+    """
 
     print(f'Fetching the price of {ticker}...')
     try:
@@ -45,13 +45,13 @@ def get_real_price(ticker:str):
         return None
 
 def load_portfolio(filename:str):
-    '''
+    """
     Получает название файла json, загружает файл. Если возникает ошибка при загрузке,
     то создает портфолио по умолчанию.
 
     :param str filename: название файла json, который загружается
     :return: Загруженный файл json
-    '''
+    """
     try:
         with open(filename, 'r') as f:
             return json.load(f)
@@ -59,18 +59,18 @@ def load_portfolio(filename:str):
         return {"cash": 0.0, "positions": {}, "history": []}
 
 def save_portfolio(data, filename="portfolio.json"):
-    '''
+    """
     Сохраняет словарь data, который содержит информацию о портфеле, в формате json
 
     :param dict data:
     :param str filename:
     :return:
-    '''
+    """
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
 
 def update_cash(data, amount):
-    '''
+    """
     Получает на вход словарь, хранящий в себе информацию о портфолио,
     и сумму, которую нужно добавить или вычесть из счета.
     Прибавляет к элементу с ключом cash число amount.
@@ -78,13 +78,13 @@ def update_cash(data, amount):
     :param dict data:
     :param int or float amount:
     :return: Словарь с обновленным количеством денег на счете
-    '''
+    """
     data["cash"] += amount
     log_action(data, f"Cash update: {amount}")
     return data
 
 def buy_asset(data, ticker, qty):
-    '''
+    """
     Принимает словарь data, содержащий всю информацию о портфеле,
     название тикера ticker из словаря WATCHLIST, количество акций qty,
     которое нужно приобрести.
@@ -101,7 +101,7 @@ def buy_asset(data, ticker, qty):
     :param str ticker:
     :param int or float qty:
     :return: True
-    '''
+    """
     if ticker not in WATCHLIST:
         print(f"Error: {ticker} is not in watchlist.")
         return False
@@ -134,7 +134,7 @@ def buy_asset(data, ticker, qty):
     return True
 
 def sell_asset(data, ticker, qty):
-    '''
+    """
     Принимает на вход словарь data, содержащий всю информацию о портфеле,
     название тикера ticker из словаря WATCHLIST, количество акций qty,
     которое нужно продать.
@@ -150,7 +150,7 @@ def sell_asset(data, ticker, qty):
     :param ticker:
     :param qty:
     :return: True or False
-    '''
+    """
     if ticker not in data["positions"] or data["positions"][ticker]["qty"] < qty:
         print("Error: Not enough position to sell.")
         return False
@@ -173,14 +173,42 @@ def sell_asset(data, ticker, qty):
 
 
 def export_history_data(data):
-    print("\n--- History Export ---")
-    print("Date,Action,Cash")
+    """
+
+    Выводит какие действия производились на кошельке
+
+    :param dict data: Информация о кошельке
+
+    :example:
+
+    >>>a = {"cash":1000, "history": {"date":"2025-11-29 20:55:48.060410", "action":"Обновление счета: 10000.0", "cash_snapshot":10000.0}}
+    >>>export_history_data(a)
+    --- История портфеля ---
+    Дата, Действие, Деньги
+    2025-11-29 20:55:48.060410, Обновление счета: 10000.0, 10000.0
+
+    """
+    print("\n--- История портфеля ---")
+    print("Дата, Действие, Деньги")
     for entry in data["history"]:
-        print(f"{entry['date']},{entry['action']},{entry['cash_snapshot']}")
+        print(f"{entry['date']}, {entry['action']}, {entry['cash_snapshot']}")
 
 
 def get_chart(ticker, days):
-    print("loading chart...")
+    """
+
+    Выводит график акции или криптовалюты за выбранное кол-во дней от сегодняшней даты
+
+    :param str ticker: Тикер криптовалюты или акции
+    :param days: В каком диапазоне дней будет график
+
+    :example:
+    >>>a="AAPL"
+    >>>b=20
+    >>>get_chart(a, b)
+    chart of Apple Inc.
+    """
+    print("загружаем график...")
     end_date = datetime.datetime.now()
     start_date = end_date - datetime.timedelta(days=days)
     df = yfinance.download(
@@ -209,8 +237,8 @@ def get_chart(ticker, days):
     )
 
     plt.title(f"{ticker}")
-    plt.xlabel("Date")
-    plt.ylabel("Price ($)")
+    plt.xlabel("Дата")
+    plt.ylabel("Цена ($)")
 
     plt.xticks(rotation=45)
     plt.tight_layout()
@@ -219,6 +247,19 @@ def get_chart(ticker, days):
 
 
 def log_action(data, message):
+    """
+
+    Загружает действия в информацию о портфеле
+
+    :param dict data: Информация о портфеле
+    :param str message: Описываем какое действие сделали
+
+    :example:
+    >>>a={"cash":{"positions":{}}, "history":{}}
+    >>>b="Bought"
+    >>>log_action(a, b)
+    """
+
     data["history"].append({
         "date": str(datetime.datetime.now()),
         "action": message,
@@ -229,36 +270,47 @@ def log_action(data, message):
 def get_current_stats(data):
     """
 
-    Calculates total portfolio value with LIVE prices
+    Считаем стоимость портфеля в реальном времени и показывает pnl
 
-    :param dict data: portfolio data
-    :return: dictionary with statistics
+    :param dict data: Информации о портфеле
+    :return: статистику о портфеле
     :rtype: dict
 
     :example:
-
+    >>>a={"cash":1000,"positions":{"AAPL":{"qty":2, "avg_price":230}}, "history":{}}
+    >>>get_current_stats(a)
+    --- Ищем цену акций и крипты в портфеле ---
+    AAPL: кол-во 2 | Цена: $250.00 | Стоимость: $500.00 | Изменение стоимости: 8.69%
+    {
+        "cash": 1000
+        "assets_value": 500
+        "total_value": 1500
+        "total_pnl": 8.69%
+    }
     """
-    current_asset_value = 0.0
-    total_cost_basis = 0.0
+    total_value = 0.0
+    total_cost = 0.0
 
-    print("\n--- Fetching current prices for holdings ---")
+    print("\n--- Ищем цену акций и крипты в портфеле ---")
     for ticker, info in data["positions"].items():
         price = get_real_price(ticker)
 
         if price is None:
             price = info["avg_price"]
-            print(f"Using saved price for {ticker}")
+            print(f"Использую сохраненную цену {ticker}")
 
         current_asset_value = info["qty"] * price
-        total_cost_basis = info["qty"] * info["avg_price"]
+        asset_cost = info["qty"] * info["avg_price"]
+        total_value += current_asset_value
+        total_cost += asset_cost
 
-        pnl = current_asset_value - total_cost_basis
-        pnl_percent = (pnl / total_cost_basis * 100) if total_cost_basis > 0 else 0
-        print(f"{ticker}: {info['qty']} units | Price: ${price:.2f} | Val: ${current_asset_value:.2f} | PnL: {pnl_percent:.2f}%")
+        pnl = current_asset_value - asset_cost
+        pnl_percent = (pnl / asset_cost * 100) if asset_cost > 0 else 0
+        print(f"{ticker}: кол-во {info['qty']} | Цена: ${price:.2f} | Стоимость: ${current_asset_value:.2f} | Изменение стоимости: {pnl_percent:.2f}%")
 
     return {
         "cash": data["cash"],
-        "asset_value": current_asset_value,
-        "total_value": data["cash"] + current_asset_value,
-        "total_pnl": current_asset_value - total_cost_basis
+        "assets_value": total_value,
+        "total_value": data["cash"] + total_value,
+        "total_pnl": total_value - total_cost
     }
