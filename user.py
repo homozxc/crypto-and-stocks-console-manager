@@ -74,7 +74,7 @@ while True:
 
     elif choice == '6':
         try:
-            l.get_chart(input("Введите тикер: "), int(input("Введите кол-во дней")))
+            l.get_chart(input("Введите тикер: "), int(input("Введите кол-во дней: ")))
         except ValueError:
             print("Введено неверное значение")
 
