@@ -64,7 +64,7 @@ while True:
         stats = l.get_current_stats(portfolio)
         print("\n---------------------------------")
         print(f"Количество денег:    ${stats['cash']:.2f}")
-        print(f"Ценность крипты и акций:  ${stats['asset_value']:.2f}")
+        print(f"Ценность крипты и акций:  ${stats['assets_value']:.2f}")
         print(f"Общая ценность:  ${stats['total_value']:.2f}")
         print(f"Заработок/убыток:  ${stats['total_pnl']:.2f}")
         print("---------------------------------")
