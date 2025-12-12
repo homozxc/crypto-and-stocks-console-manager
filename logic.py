@@ -56,7 +56,7 @@ def load_portfolio(filename:str):
         with open(filename, 'r') as f:
             return json.load(f)
     except:
-        return {"cash": 0.0, "positions": {}, "history": []}
+        return {"cash": 1000, "positions": {}, "history": []}
 
 def save_portfolio(data, filename="portfolio.json"):
     """
@@ -91,11 +91,11 @@ def buy_asset(data, ticker, qty):
 
     Если тикер есть в словаре WATCHLIST,
     то обращается к функции get_real_price и получает
-     цену тикера. Если на счете достаточно денег, то обновляет
-     в словаре data элемент с ключом 'positions' и возвращает True.
+    цену тикера. Если на счете достаточно денег, то обновляет
+    в словаре data элемент с ключом 'positions' и возвращает True.
 
-     Если тикера нет в списке разрешенных, не удалось получить цену тикера или
-     на счете недостаточно денег, то выводит соответствующее сообщение и возвращает False.
+    Если тикера нет в списке разрешенных, не удалось получить цену тикера или
+    на счете недостаточно денег, то выводит соответствующее сообщение и возвращает False.
 
     :param dict data:
     :param str ticker:
@@ -208,42 +208,46 @@ def get_chart(ticker, days):
     >>>get_chart(a, b)
     chart of Apple Inc.
     """
-    print("загружаем график...")
-    end_date = datetime.datetime.now()
-    start_date = end_date - datetime.timedelta(days=days)
-    df = yfinance.download(
-        tickers=ticker,
-        start=start_date,
-        end=end_date,
-        interval="1d",
-        group_by="ticker",
-        auto_adjust=True,
-        progress=False
-    )
-    df = df.stack(level="Ticker", future_stack=True)
-    df.index.names = ["Date", "Symbol"]
-    df = df[["Open", "High", "Low", "Close", "Volume"]]
-    df = df.swaplevel(0, 1)
-    df = df.sort_index()
 
-    plt.figure(figsize=(10, 6))
-    plt.grid(alpha=0.5)
+    if ticker not in WATCHLIST:
+        print(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
+    else:
+        print("загружаем график...")
+        end_date = datetime.datetime.now()
+        start_date = end_date - datetime.timedelta(days=days)
+        df = yfinance.download(
+            tickers=ticker,
+            start=start_date,
+            end=end_date,
+            interval="1d",
+            group_by="ticker",
+            auto_adjust=True,
+            progress=False
+        )
+        df = df.stack(level="Ticker", future_stack=True)
+        df.index.names = ["Date", "Symbol"]
+        df = df[["Open", "High", "Low", "Close", "Volume"]]
+        df = df.swaplevel(0, 1)
+        df = df.sort_index()
 
-    plt.plot(
-        df.xs(ticker).index,
-        df.xs(ticker)["Close"],
-        color="blue",
-        linewidth=1.5
-    )
+        plt.figure(figsize=(10, 6))
+        plt.grid(alpha=0.5)
 
-    plt.title(f"{ticker}")
-    plt.xlabel("Дата")
-    plt.ylabel("Цена ($)")
+        plt.plot(
+            df.xs(ticker).index,
+            df.xs(ticker)["Close"],
+            color="blue",
+            linewidth=1.5
+        )
 
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+        plt.title(f"{ticker}")
+        plt.xlabel("Дата")
+        plt.ylabel("Цена ($)")
 
-    plt.show()
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        plt.show()
 
 
 def log_action(data, message):
@@ -277,7 +281,7 @@ def get_current_stats(data):
     :rtype: dict
 
     :example:
-    >>>a={"cash":1000,"positions":{"AAPL":{"qty":2, "avg_price":230}}, "history":{}}
+    >>>a={"cash":1000,"positions":{"AAPL":{"qty":2, "avg_price":230}}, "history":}
     >>>get_current_stats(a)
     --- Ищем цену акций и крипты в портфеле ---
     AAPL: кол-во 2 | Цена: $250.00 | Стоимость: $500.00 | Изменение стоимости: 8.69%
