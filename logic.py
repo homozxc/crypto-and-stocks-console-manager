@@ -209,45 +209,45 @@ def get_chart(ticker, days):
     chart of Apple Inc.
     """
 
-    if ticker not in WATCHLIST:
-        print(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
-    else:
-        print("загружаем график...")
-        end_date = datetime.datetime.now()
-        start_date = end_date - datetime.timedelta(days=days)
-        df = yfinance.download(
-            tickers=ticker,
-            start=start_date,
-            end=end_date,
-            interval="1d",
-            group_by="ticker",
-            auto_adjust=True,
-            progress=False
-        )
-        df = df.stack(level="Ticker", future_stack=True)
-        df.index.names = ["Date", "Symbol"]
-        df = df[["Open", "High", "Low", "Close", "Volume"]]
-        df = df.swaplevel(0, 1)
-        df = df.sort_index()
+    if ticker not in WATCHLIST or days <= 0:
+        raise ValueError(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
 
-        plt.figure(figsize=(10, 6))
-        plt.grid(alpha=0.5)
+    print("загружаем график...")
+    end_date = datetime.datetime.now()
+    start_date = end_date - datetime.timedelta(days=days)
+    df = yfinance.download(
+        tickers=ticker,
+        start=start_date,
+        end=end_date,
+        interval="1d",
+        group_by="ticker",
+        auto_adjust=True,
+        progress=False
+    )
+    df = df.stack(level="Ticker", future_stack=True)
+    df.index.names = ["Date", "Symbol"]
+    df = df[["Open", "High", "Low", "Close", "Volume"]]
+    df = df.swaplevel(0, 1)
+    df = df.sort_index()
 
-        plt.plot(
-            df.xs(ticker).index,
-            df.xs(ticker)["Close"],
-            color="blue",
-            linewidth=1.5
-        )
+    plt.figure(figsize=(10, 6))
+    plt.grid(alpha=0.5)
 
-        plt.title(f"{ticker}")
-        plt.xlabel("Дата")
-        plt.ylabel("Цена ($)")
+    plt.plot(
+        df.xs(ticker).index,
+        df.xs(ticker)["Close"],
+        color="blue",
+        linewidth=1.5
+    )
 
-        plt.xticks(rotation=45)
-        plt.tight_layout()
+    plt.title(f"{ticker}")
+    plt.xlabel("Дата")
+    plt.ylabel("Цена ($)")
 
-        plt.show()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    plt.show()
 
 
 def log_action(data, message):
