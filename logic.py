@@ -79,6 +79,8 @@ def update_cash(data, amount):
     :param int or float amount:
     :return: Словарь с обновленным количеством денег на счете
     """
+    if 'cash' not in data or not isinstance(amount, (int, float)):
+        return None
     data["cash"] += amount
     log_action(data, f"Обновление денег на счете: {amount}")
     return data
@@ -102,6 +104,8 @@ def buy_asset(data, ticker, qty):
     :param int or float qty:
     :return: True
     """
+    if qty <= 0:
+        raise ValueError
     if ticker not in WATCHLIST:
         print(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
         return False
@@ -151,6 +155,8 @@ def sell_asset(data, ticker, qty):
     :param qty:
     :return: True or False
     """
+    if qty <= 0:
+        raise ValueError
     if ticker not in data["positions"] or data["positions"][ticker]["qty"] < qty:
         print("Ошибка: Нет такого кол-ва, чтобы продать.")
         return False
