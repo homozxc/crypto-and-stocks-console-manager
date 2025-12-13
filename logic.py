@@ -215,8 +215,10 @@ def get_chart(ticker, days):
     chart of Apple Inc.
     """
 
-    if ticker not in WATCHLIST or days <= 0:
+    if ticker not in WATCHLIST:
         raise ValueError(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
+    if days <= 0 or days > 10000:
+        raise ValueError("Количество дней должно быть от 1 до 10000")
 
     print("загружаем график...")
     end_date = datetime.datetime.now()
