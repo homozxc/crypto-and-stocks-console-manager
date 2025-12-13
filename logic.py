@@ -42,10 +42,12 @@ def get_real_price(ticker:str):
     try:
         data = yfinance.Ticker(ticker).history(period='1d')
         return data['Close'].iloc[-1] if not data.empty else None
-    except:
+    except IndexError:
+        print('Ошибка обработки данных')
         return None
-
-
+    except ValueError:
+        print('Ошибка значения')
+        return None
 
 def load_portfolio(filename:str):
     """
@@ -59,9 +61,12 @@ def load_portfolio(filename:str):
     try:
         with open(filename, 'r') as f:
             return json.load(f)
-    except:
+    except json.JSONDecodeError:
+        print('Ошибка библиотеки json')
         return {"cash": 1000, "positions": {}, "history": []}
-
+    except FileNotFoundError:
+        print('Файл не найден')
+        return None
 def save_portfolio(data, filename="portfolio.json"):
     """
     Сохраняет словарь data, который содержит информацию о портфеле, в формате json
