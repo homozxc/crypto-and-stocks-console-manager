@@ -1,1 +1,1 @@
-"# crypto-and-stocks-console-manager" 
+Менеджер криптовалюты и акции для любителей консоли
