@@ -56,7 +56,7 @@ def load_portfolio(filename:str):
         with open(filename, 'r') as f:
             return json.load(f)
     except:
-        return {"cash": 1000, "positions": {}, "history": []}
+        return {"cash": 1000, "positions": {}, "history": {}}
 
 def save_portfolio(data, filename="portfolio.json"):
     """
