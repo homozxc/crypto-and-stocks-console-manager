@@ -26,7 +26,8 @@ def get_real_price(ticker:str):
     Возвращает цену закрытия тикера в формате float. Если входная переменная содержит
     пустую строку или во время выполнения кода возникает ошибка, возвращает None
 
-    :param: str ticker: название тикера из списка WATCHLIST
+    :param: ticker: название тикера из списка WATCHLIST
+    :type ticker: str
     :return: Цена тикера за последний торговый день if not data.empty else None
     :rtype: float
 
@@ -44,27 +45,31 @@ def get_real_price(ticker:str):
     except:
         return None
 
+
+
 def load_portfolio(filename:str):
     """
     Получает название файла json, загружает файл. Если возникает ошибка при загрузке,
     то создает портфолио по умолчанию.
 
-    :param str filename: название файла json, который загружается
+    :param filename: название файла json, который загружается
+    :type filename: str
     :return: Загруженный файл json
     """
     try:
         with open(filename, 'r') as f:
             return json.load(f)
     except:
-        return {"cash": 1000, "positions": {}, "history": {}}
+        return {"cash": 1000, "positions": {}, "history": []}
 
 def save_portfolio(data, filename="portfolio.json"):
     """
     Сохраняет словарь data, который содержит информацию о портфеле, в формате json
 
-    :param dict data:
-    :param str filename:
-    :return:
+    :param data:
+    :type data: dict
+    :param filename:
+    :type filename: str
     """
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
@@ -75,13 +80,16 @@ def update_cash(data, amount):
     и сумму, которую нужно добавить или вычесть из счета.
     Прибавляет к элементу с ключом cash число amount.
 
-    :param dict data:
-    :param int or float amount:
-    :return: Словарь с обновленным количеством денег на счете
+    :param data:
+    :type data: dict
+    :param amount:
+    :type amount: int or float
+    :return: data
+    :rtype: dict
     """
     if 'cash' not in data or not isinstance(amount, (int, float)):
         return None
-    data["cash"] += amount
+    data['cash'] += amount
     log_action(data, f"Обновление денег на счете: {amount}")
     return data
 
@@ -99,10 +107,14 @@ def buy_asset(data, ticker, qty):
     Если тикера нет в списке разрешенных, не удалось получить цену тикера или
     на счете недостаточно денег, то выводит соответствующее сообщение и возвращает False.
 
-    :param dict data:
-    :param str ticker:
-    :param int or float qty:
-    :return: True
+    :param data:
+    :type data: dict
+    :param ticker:
+    :type ticker: str
+    :param qty:
+    :type qty: int or float
+    :return: True or False
+    :rtype: bool
     """
     if qty <= 0:
         raise ValueError
@@ -151,9 +163,13 @@ def sell_asset(data, ticker, qty):
     имеющихся, или не удалось получить цену тикера, то выводит соответствующее сообщение и возвращает False.
 
     :param data:
+    :type data: dict
     :param ticker:
+    :type ticker: str
     :param qty:
+    :type qty: int or float
     :return: True or False
+    :rtype: bool
     """
     if qty <= 0:
         raise ValueError
@@ -215,10 +231,8 @@ def get_chart(ticker, days):
     chart of Apple Inc.
     """
 
-    if ticker not in WATCHLIST:
+    if ticker not in WATCHLIST or days <= 0:
         raise ValueError(f"Ошибка: {ticker} нет в списке разрешенных акций и криптовалют.")
-    if days <= 0 or days > 10000:
-        raise ValueError("Количество дней должно быть от 1 до 10000")
 
     print("загружаем график...")
     end_date = datetime.datetime.now()
