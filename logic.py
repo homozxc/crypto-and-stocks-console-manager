@@ -66,7 +66,7 @@ def load_portfolio(filename:str):
         return {"cash": 1000, "positions": {}, "history": []}
     except FileNotFoundError:
         print('Файл не найден')
-        return None
+        return {"cash": 1000, "positions": {}, "history": []}
 def save_portfolio(data, filename="portfolio.json"):
     """
     Сохраняет словарь data, который содержит информацию о портфеле, в формате json
